@@ -3,13 +3,13 @@ from random import randint
 
 # import pygame.locals for easier access to key coordinates
 from pygame.locals import (
+    RLEACCEL,
     K_UP,
     K_DOWN,
     K_LEFT,
     K_RIGHT,
     K_ESCAPE,
     KEYDOWN,
-    KEYUP,
     QUIT,
 )
 
@@ -20,8 +20,8 @@ SCREEN_HEIGHT = 600
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         super(Player, self).__init__()
-        self.surf = pygame.Surface((75, 25))
-        self.surf.fill((255, 255, 255))
+        self.surf = pygame.image.load("images/spaceship.png").convert()
+        self.surf.set_colorkey((255, 255, 255), RLEACCEL)
         self.rect = self.surf.get_rect(
             center=(100, SCREEN_HEIGHT / 2)
         )
@@ -40,15 +40,15 @@ class Player(pygame.sprite.Sprite):
 class Enemy(pygame.sprite.Sprite):
     def __init__(self):
         super(Enemy, self).__init__()
-        self.surf = pygame.Surface((20, 10))
-        self.surf.fill((255, 255, 255))
+        self.surf = pygame.image.load('images/missile.png').convert()
+        self.surf.set_colorkey((255, 255, 255), RLEACCEL)
         self.rect = self.surf.get_rect(
             center=(
                 randint(SCREEN_WIDTH + 20, SCREEN_WIDTH + 100),
                 randint(0, SCREEN_HEIGHT),
             )
         )
-        self.speed = randint(1, 3)
+        self.speed = randint(2, 5)
 
     def update(self) -> None:
         self.rect.move_ip(-self.speed, 0)
@@ -56,16 +56,40 @@ class Enemy(pygame.sprite.Sprite):
             self.kill()
 
 
+class Planet(pygame.sprite.Sprite):
+    def __init__(self):
+        super(Planet, self).__init__()
+        self.surf = pygame.image.load(f'images/planet0{randint(3, 5)}.png').convert()
+        self.surf.set_colorkey((0, 0, 0), RLEACCEL)
+        self.rect = self.surf.get_rect(
+            center=(
+                randint(SCREEN_WIDTH + 20, SCREEN_WIDTH + 100),
+                randint(0, SCREEN_HEIGHT),
+            )
+        )
+
+    def update(self) -> None:
+        self.rect.move_ip(-1, 0)
+        if self.rect.right < 0:
+            self.kill()
+
+
 pygame.init()
+
+# had to setup a clock for decent framerate as everything was moving on supersonic speed!!!
+clock = pygame.time.Clock()
 
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
 # a custom event for adding a new enemy
 ADDENEMY = pygame.USEREVENT + 1
 pygame.time.set_timer(ADDENEMY, 250)
+ADDPLANET = pygame.USEREVENT + 2
+pygame.time.set_timer(ADDPLANET, 3000)
 
 player = Player()
 enemies = pygame.sprite.Group()
+planets = pygame.sprite.Group()
 all_sprites = pygame.sprite.Group()
 all_sprites.add(player)
 
@@ -86,12 +110,18 @@ while running:
             enemies.add(new_enemy)
             all_sprites.add(new_enemy)
 
+        elif event.type == ADDPLANET:
+            new_planet = Planet()
+            planets.add(new_planet)
+            all_sprites.add(new_planet)
+
     # get the set of keys pressed, check for user input and update
     keys_pressed = pygame.key.get_pressed()
     player.update(keys_pressed)
 
-    # updates all enemies
+    # updates enemies and planets
     enemies.update()
+    planets.update()
 
     screen.fill((0, 0, 0))
 
@@ -103,3 +133,5 @@ while running:
         running = False
 
     pygame.display.flip()
+
+    clock.tick(60)
