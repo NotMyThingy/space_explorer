@@ -22,7 +22,9 @@ class Player(pygame.sprite.Sprite):
         super(Player, self).__init__()
         self.surf = pygame.Surface((75, 25))
         self.surf.fill((255, 255, 255))
-        self.rect = self.surf.get_rect()
+        self.rect = self.surf.get_rect(
+            center=(100, SCREEN_HEIGHT / 2)
+        )
 
     def update(self, pressed_keys) -> None:
         if pressed_keys[K_UP] and self.rect.top > 0:
@@ -59,6 +61,9 @@ pygame.init()
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
 player = Player()
+enemies = pygame.sprite.Group()
+all_sprites = pygame.sprite.Group()
+all_sprites.add(player)
 
 running = True
 while running:
@@ -79,6 +84,7 @@ while running:
 
     screen.fill((0, 0, 0))
 
-    screen.blit(player.surf, player.rect)
+    for entity in all_sprites:
+        screen.blit(entity.surf, entity.rect)
 
     pygame.display.flip()
