@@ -21,7 +21,7 @@ class Player(pygame.sprite.Sprite):
     def __init__(self):
         super(Player, self).__init__()
         self.surf = pygame.image.load("images/spaceship.png").convert()
-        self.surf.set_colorkey((255, 255, 255), RLEACCEL)
+        self.surf.set_colorkey((0, 0, 0), RLEACCEL)
         self.rect = self.surf.get_rect(
             center=(100, SCREEN_HEIGHT / 2)
         )
@@ -123,7 +123,8 @@ while running:
     enemies.update()
     planets.update()
 
-    screen.fill((0, 0, 0))
+    bg = pygame.image.load('images/bg.jpeg').convert()
+    screen.blit(bg, (0, 0))
 
     for entity in all_sprites:
         screen.blit(entity.surf, entity.rect)
