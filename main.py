@@ -1,4 +1,5 @@
 import pygame
+from random import randint
 
 # import pygame.locals for easier access to key coordinates
 from pygame.locals import (
@@ -9,7 +10,7 @@ from pygame.locals import (
     K_ESCAPE,
     KEYDOWN,
     KEYUP,
-    QUIT
+    QUIT,
 )
 
 SCREEN_WIDTH = 800
@@ -32,6 +33,25 @@ class Player(pygame.sprite.Sprite):
             self.rect.move_ip(-2, 0)
         if pressed_keys[K_RIGHT] and self.rect.right < SCREEN_WIDTH:
             self.rect.move_ip(2, 0)
+
+
+class Enemy(pygame.sprite.Sprite):
+    def __init__(self):
+        super(Enemy, self).__init__()
+        self.surf = pygame.Surface((20, 10))
+        self.surf.fill((255, 255, 255))
+        self.rect = self.surf.get_rect(
+            center=(
+                randint(SCREEN_WIDTH + 20, SCREEN_WIDTH + 100),
+                randint(0, SCREEN_HEIGHT),
+            )
+        )
+        self.speed = randint(2, 6)
+
+    def update(self) -> None:
+        self.rect.move_ip(-self.speed, 0)
+        if self.rect.right < 0:
+            self.kill()
 
 
 pygame.init()
